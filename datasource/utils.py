@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Dec  5 09:41:26 2018
-
-@author: admin
-"""
-
 def addPrefix(code,sh,sz):
     if code[0] == '6':
         return sh + code

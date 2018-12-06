@@ -11,6 +11,7 @@ def getDayData(code,start_date,end_date):
     response.encoding = 'gbk'
     return response.text
 
+
 def getAllCloseData(code,period='day',fq=True):
     if not fq:
         kline = 'kline'
@@ -21,17 +22,20 @@ def getAllCloseData(code,period='day',fq=True):
     response.raise_for_status()
     return response.json()
 
+
 def getYearlyDaysData(code,year,period='day'):
     url = 'http://img1.money.126.net/data/hs/kline/%s/history/%s/%s.json' % (period, year, addWangyiPrefix(code))
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
 
+
 def getTodayCurve(code):
     url = 'http://img1.money.126.net/data/hs/time/today/%s.json' % addWangyiPrefix(code)
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
+
 
 def get4DaysCurve(code,timeout=5):
     url = 'http://img1.money.126.net/data/hs/time/4days/%s.json' % addWangyiPrefix(code)

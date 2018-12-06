@@ -26,7 +26,7 @@ def downloadSingle(code):
         f.writelines(helper)
 
 
-def downloadAll():
+def downloadAllWithSkip():
     codes = exchange.getAllSHCodes()
     downloaded_codes = [name[9:15] for name in os.listdir(data_folder)]
     for code in codes:
@@ -59,10 +59,11 @@ def fastDownloadAll():
 
             
 def complementAll():
+    #todo 还是太慢，10分钟样子
+    end_date = calculateEndDate()
     for name in os.listdir(data_folder):
         last_date = datetime.strptime(name[0:8], '%Y%m%d').date()
         code = name[9:15]
-        end_date = calculateEndDate()
         if end_date > last_date:
             path = data_folder + name
             start_date = last_date+timedelta(1)
@@ -79,22 +80,34 @@ def removeExtra():
     for name in os.listdir(data_folder):
         code = name[9:15]
         if code not in codes1 and code not in codes2:
+            print('remove\t' + name)
             os.remove(data_folder+name)
+
+
+def removeSpecial():
+    names = checkLastDate()
+    for name in names:
+        print('remove\t' + name)
+        os.remove(data_folder+name)
 
 
 def checkLastDate():
     ret = []
     for name in os.listdir(data_folder):
-        code = name[9:15]
         date = name[0:8]
         with open(data_folder+name,'r') as f:
             content = f.readlines()
             if content[-1][0:10].replace('-', '') != date:
-                ret.append(code)
+                ret.append(name)
     return ret
 
 
 def read(code):
     date = calculateEndDate().strftime('%Y%m%d')
     path = data_folder+date+'-'+'%s.csv' % code
-    return pd.read_csv(path, encoding='gbk')
+    return pd.read_csv(path, encoding='gbk',index_col=0)
+
+
+def readAll():
+    return [pd.read_csv(data_folder+name,encoding='gbk',index_col=0) for name in os.listdir(data_folder)]
+        

@@ -1,6 +1,7 @@
 import requests
 from datasource import utils
-import  xlrd
+import xlrd
+import os
 
 def getAllSHCodes():
     url = "http://query.sse.com.cn/security/stock/downloadStockListFile.do?csrcCode=&stockCode=&areaName=&stockType=1"
@@ -13,6 +14,7 @@ def getAllSHCodes():
     next(h)
     return [row[0:6] for row in h]
 
+
 def getAllSZCodes():
     url = "http://www.szse.cn/api/report/ShowReport?SHOWTYPE=xlsx&CATALOGID=1110&TABKEY=tab1&random=0.2335568399319603"
     res = requests.get(url)
@@ -24,4 +26,5 @@ def getAllSZCodes():
     ret = []
     for i in range(1, sheet.nrows):
         ret.append(sheet.row(i)[0].value)
+    os.remove('tmp.xlsx')
     return ret
