@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, date
 import os
 import pandas as pd
 
-data_folder = 'E:/quant/data/'
+stocks_folder = 'E:/quant/data/stocks/'
 
 
 def downloadSingle(code: str,end_date:date=None):
@@ -13,7 +13,7 @@ def downloadSingle(code: str,end_date:date=None):
     helper = utils.CSVHelper(content)
     next(helper)
     latest_date = next(helper)[0:10]
-    with open(data_folder+latest_date+'-'+'%s.csv' % code, 'w', newline='') as f:
+    with open(stocks_folder + latest_date + '-' + '%s.csv' % code, 'w', newline='') as f:
         f.write(content[0:62])
         helper = utils.WYRCSVHelper(content)
         f.writelines(helper)
@@ -21,7 +21,7 @@ def downloadSingle(code: str,end_date:date=None):
         
 def complementDownload():
     codes = exchange.getAllSHCodes()
-    downloaded_codes = [name[11:17] for name in os.listdir(data_folder)]
+    downloaded_codes = [name[11:17] for name in os.listdir(stocks_folder)]
     for code in codes:
         if code in downloaded_codes:
             continue
@@ -42,7 +42,7 @@ def fastDownloadAll():
         helper = utils.CSVHelper(content)
         next(helper)
         latest_date = next(helper)[0:10]
-        with open(data_folder+latest_date+'-'+'%s.csv' % code, 'w', newline='') as f:
+        with open(stocks_folder + latest_date + '-' + '%s.csv' % code, 'w', newline='') as f:
             f.write(content[0:62])
             helper = utils.WYRCSVHelper(content)
             f.writelines(helper)
@@ -51,7 +51,7 @@ def fastDownloadAll():
         helper = utils.CSVHelper(content)
         next(helper)
         latest_date = next(helper)[0:10]
-        with open(data_folder+latest_date+'-'+'%s.csv' % code, 'w', newline='') as f:
+        with open(stocks_folder + latest_date + '-' + '%s.csv' % code, 'w', newline='') as f:
             f.write(content[0:62])
             helper = utils.WYRCSVHelper(content)
             f.writelines(helper)              
@@ -59,7 +59,7 @@ def fastDownloadAll():
             
 def complementAll():
     end_date = date.today()
-    for name in os.listdir(data_folder):
+    for name in os.listdir(stocks_folder):
         last_date = datetime.strptime(name[0:10], '%Y-%m-%d').date()
         if end_date > last_date:
             code = name[11:17]    
@@ -69,19 +69,19 @@ def complementAll():
             next(helper)
             try:
                 latest_date = next(helper)[0:10]
-                path = data_folder + name
+                path = stocks_folder + name
                 with open(path, 'a') as f:
                     f.writelines(utils.WYRCSVHelper(content))
-                os.rename(path, data_folder+latest_date+'-'+'%s.csv' % code)
+                os.rename(path, stocks_folder + latest_date + '-' + '%s.csv' % code)
             except StopIteration:
                 return
 
 
 def checkLastDate():
     ret = []
-    for name in os.listdir(data_folder):
+    for name in os.listdir(stocks_folder):
         lastest_date = name[0:10]
-        with open(data_folder+name, 'r') as f:
+        with open(stocks_folder + name, 'r') as f:
             content = f.readlines()
             if content[-1][0:10] != lastest_date:
                 ret.append(name)
@@ -89,4 +89,4 @@ def checkLastDate():
 
 
 def readAll():
-    return [pd.read_csv(data_folder+name,encoding='gbk',index_col=0) for name in os.listdir(data_folder)]
+    return [pd.read_csv(stocks_folder + name, encoding='gbk', index_col=0) for name in os.listdir(stocks_folder)]

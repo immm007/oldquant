@@ -1,6 +1,7 @@
 from datasource.utils import *
 import requests
 from datetime import date
+from bs4 import BeautifulSoup
 
 
 def getDayData(code: str, end_date: date, start_date: date=date(1990, 1, 1)):
@@ -14,6 +15,27 @@ def getDayData(code: str, end_date: date, start_date: date=date(1990, 1, 1)):
     return response.text
 
 
+def peekDayData(code: str, _date: date):
+    url = "http://quotes.money.163.com/trade/lsjysj_%s.html#01b07" % code
+    response = requests.get(url)
+    response.raise_for_status()
+    soup = BeautifulSoup(response.text, 'html.parser')
+    table = soup.findAll('table')[3]
+    s_date = _date.strftime('%Y-%m-%d')
+    ret = []
+    for tr in table.findAll('tr'):
+        data = [td.text for td in tr.findAll('td')]
+        if not data:
+            continue
+        if data[0] < s_date:
+            return ret
+        else:
+            data[7] = data[7].replace(',', '')
+            data[8] = data[8].replace(',', '')
+            ret.append(','.join(data))
+    return ret
+             
+            
 def getAllCloseData(code,period='day', fq=True):
     if not fq:
         kline = 'kline'
