@@ -1,18 +1,20 @@
 from datasource.utils import *
 import requests
+from datetime import date
 
-def getDayData(code,start_date,end_date):
+
+def getDayData(code: str, end_date: date, start_date: date=date(1990, 1, 1)):
     url = ("http://quotes.money.163.com/service/chddata.html?"
            "code={0}&start={1}&end={2}&fields="
-           "TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP"
-              .format(addWangyiPrefix(code), start_date, end_date))
+           "TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP".format(
+        addWangyiPrefix(code), start_date.strftime('%Y%m%d'), end_date.strftime('%Y%m%d')))
     response = requests.get(url)
     response.raise_for_status()
     response.encoding = 'gbk'
     return response.text
 
 
-def getAllCloseData(code,period='day',fq=True):
+def getAllCloseData(code,period='day', fq=True):
     if not fq:
         kline = 'kline'
     else:

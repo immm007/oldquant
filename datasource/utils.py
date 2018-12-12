@@ -1,4 +1,4 @@
-def addPrefix(code,sh,sz):
+def addPrefix(code, sh, sz):
     if code[0] == '6':
         return sh + code
     elif code[0] == '0' or code[0] == '3':
