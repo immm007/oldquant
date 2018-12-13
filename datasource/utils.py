@@ -34,8 +34,9 @@ class CSVHelper:
 
 
 class WYRCSVHelper:
-    def __init__(self, s):
+    def __init__(self, s, header_length):
         self.__s = s
+        self._hl = header_length
         self.__len = len(s)
         self.__newLinePos = self.__len-2
 
@@ -43,7 +44,7 @@ class WYRCSVHelper:
         return self
 
     def __next__(self):
-        if self.__newLinePos < 62:
+        if self.__newLinePos < self._hl:
             raise StopIteration
         endPos = self.__newLinePos
         while self.__s[self.__newLinePos] != '\n':

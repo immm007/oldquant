@@ -15,6 +15,15 @@ def getDayData(code: str, end_date: date, start_date: date=date(1990, 1, 1)):
     return response.text
 
 
+def getIndexData(code, end_date):
+    url = "http://quotes.money.163.com/service/chddata.html?" \
+          "code=%s&start=19900101&end=%s&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;VOTURNOVER;VATURNOVER" % (code,end_date.strftime('%Y%m%d'))
+    response = requests.get(url)
+    response.raise_for_status()
+    response.encoding = 'gbk'
+    return response.text
+
+
 def peekDayData(code: str, _date: date):
     url = "http://quotes.money.163.com/trade/lsjysj_%s.html#01b07" % code
     response = requests.get(url)
@@ -32,7 +41,7 @@ def peekDayData(code: str, _date: date):
         else:
             data[7] = data[7].replace(',', '')
             data[8] = data[8].replace(',', '')
-            ret.append(','.join(data))
+            ret.append(data)
     return ret
              
             

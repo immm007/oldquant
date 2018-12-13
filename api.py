@@ -4,6 +4,7 @@ import os
 import pandas as pd
 
 stocks_folder = 'E:/quant/data/stocks/'
+indexes_folder = 'E:/quant/data/indexes/'
 
 
 def downloadSingle(code: str,end_date:date=None):
@@ -15,7 +16,7 @@ def downloadSingle(code: str,end_date:date=None):
     latest_date = next(helper)[0:10]
     with open(stocks_folder + latest_date + '-' + '%s.csv' % code, 'w', newline='') as f:
         f.write(content[0:62])
-        helper = utils.WYRCSVHelper(content)
+        helper = utils.WYRCSVHelper(content,62)
         f.writelines(helper)
         
         
@@ -44,7 +45,7 @@ def fastDownloadAll():
         latest_date = next(helper)[0:10]
         with open(stocks_folder + latest_date + '-' + '%s.csv' % code, 'w', newline='') as f:
             f.write(content[0:62])
-            helper = utils.WYRCSVHelper(content)
+            helper = utils.WYRCSVHelper(content,62)
             f.writelines(helper)
     for code in sz_codes:
         content = wangyi.getDayData(code, end_date)
@@ -53,7 +54,7 @@ def fastDownloadAll():
         latest_date = next(helper)[0:10]
         with open(stocks_folder + latest_date + '-' + '%s.csv' % code, 'w', newline='') as f:
             f.write(content[0:62])
-            helper = utils.WYRCSVHelper(content)
+            helper = utils.WYRCSVHelper(content,62)
             f.writelines(helper)              
             
             
@@ -71,10 +72,25 @@ def complementAll():
                 latest_date = next(helper)[0:10]
                 path = stocks_folder + name
                 with open(path, 'a') as f:
-                    f.writelines(utils.WYRCSVHelper(content))
+                    f.writelines(utils.WYRCSVHelper(content,62))
                 os.rename(path, stocks_folder + latest_date + '-' + '%s.csv' % code)
             except StopIteration:
                 return
+
+
+def downloadIndexes():
+    indexes = ['0000001','0000016','0000300',
+               '1399001','1399106','1399006','1399102']
+    dt = datetime.now()
+    _date = dt.date()
+    if dt <  datetime(_date.year, _date.month, _date.day,15,30,0):
+        _date -= timedelta(1)
+    for index in indexes:
+        content = wangyi.getIndexData(index, _date)
+        with open(indexes_folder+ '%s.csv' % index[1:], 'w', newline='') as f:
+            f.write(content[0:48])
+            helper = utils.WYRCSVHelper(content,48)
+            f.writelines(helper)
 
 
 def checkLastDate():
