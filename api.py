@@ -2,6 +2,8 @@ from datasource import wangyi, utils, exchange
 from datetime import datetime, timedelta, date
 import os
 import pandas as pd
+import numpy as np
+
 
 stocks_folder = 'E:/quant/data/stocks/'
 indexes_folder = 'E:/quant/data/indexes/'
@@ -104,5 +106,34 @@ def checkLastDate():
     return ret
 
 
-def readAll():
-    return [pd.read_csv(stocks_folder + name, encoding='gbk', index_col=0) for name in os.listdir(stocks_folder)]
+def readAllStocks():
+    return [pd.read_csv(stocks_folder + name, encoding='gbk', index_col=0,
+                        converters={
+                                '收盘价':utils.Float,
+                                '最高价':utils.Float,
+                                '最低价':utils.Float,
+                                '开盘价':utils.Float,
+                                '前收盘':utils.Float,
+                                '涨跌额':utils.Float,
+                                '涨跌幅':utils.Float,
+                                '换手率':utils.Float,
+                                '成交量':utils.Int,
+                                '成交金额':utils.Float,
+                                '总市值':utils.Float,
+                                '流通市值':utils.Float
+                                }) for name in os.listdir(stocks_folder)]
+
+
+def readIndex(code):
+    return pd.read_csv(indexes_folder+code+'.csv',encoding='gbk',index_col=0,
+                       converters={
+                                '收盘价':utils.Float,
+                                '最高价':utils.Float,
+                                '最低价':utils.Float,
+                                '开盘价':utils.Float,
+                                '前收盘':utils.Float,
+                                '涨跌额':utils.Float,
+                                '涨跌幅':utils.Float,
+                                '成交量':utils.Int,
+                                '成交金额':utils.Float
+                               })

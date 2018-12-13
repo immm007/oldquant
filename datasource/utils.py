@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def addPrefix(code, sh, sz):
     if code[0] == '6':
         return sh + code
@@ -51,3 +54,18 @@ class WYRCSVHelper:
             self.__newLinePos -= 1
         self.__newLinePos -= 1
         return self.__s[self.__newLinePos+2:endPos+1]
+
+class Float:
+    def __new__(cls,*agrs,**kwargs):
+        if agrs[0]=='None':
+            return np.nan
+        else:
+            return np.float(*agrs,**kwargs)
+
+class Int:
+    def __new__(cls,*agrs,**kwargs):
+        if agrs[0]=='None':
+            return np.nan
+        else:
+            return int(*agrs,**kwargs)    
+        
