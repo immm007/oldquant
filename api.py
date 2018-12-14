@@ -2,16 +2,13 @@ from datasource import wangyi, utils, exchange
 from datetime import datetime, timedelta, date
 import os
 import pandas as pd
-import numpy as np
 
 
 stocks_folder = 'E:/quant/data/stocks/'
 indexes_folder = 'E:/quant/data/indexes/'
 
 
-def downloadSingle(code: str,end_date:date=None):
-    if end_date is None:
-        end_date = date.today()
+def downloadSingle(code: str,end_date:date=date.today()):
     content = wangyi.getDayData(code, end_date)
     helper = utils.CSVHelper(content)
     next(helper)
@@ -22,7 +19,7 @@ def downloadSingle(code: str,end_date:date=None):
         f.writelines(helper)
         
         
-def complementDownload():
+def complementDownloadAll():
     codes = exchange.getAllSHCodes()
     downloaded_codes = [name[11:17] for name in os.listdir(stocks_folder)]
     for code in codes:
@@ -36,7 +33,7 @@ def complementDownload():
         downloadSingle(code)
 
 
-def fastDownloadAll():
+def reDownloadAll():
     sh_codes = exchange.getAllSHCodes()
     sz_codes = exchange.getAllSZCodes()
     end_date = date.today()
@@ -77,7 +74,7 @@ def complementAll():
                     f.writelines(utils.WYRCSVHelper(content,62))
                 os.rename(path, stocks_folder + latest_date + '-' + '%s.csv' % code)
             except StopIteration:
-                return
+                continue
 
 
 def downloadIndexes():
