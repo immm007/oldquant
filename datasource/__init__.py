@@ -16,7 +16,7 @@ class SHExchange:
         self.__base_url = "http://query.sse.com.cn/security/stock/downloadStockListFile.do?csrcCode=&stockCode=&areaName=&stockType=%d"
 
     def __get(self, url):
-        res = requests.get(url, headers=self.__header)
+        res = requests.get(url, headers=self.__header,timeout=2.5)
         res.raise_for_status()
         return res.text
 
@@ -47,7 +47,7 @@ class SZExchange:
         self.__base_url = 'http://www.szse.cn/api/report/ShowReport?SHOWTYPE=xlsx&CATALOGID=%s&TABKEY=tab%d'
         
     def __get(self,url,col=0):
-        res = requests.get(url)
+        res = requests.get(url,timeout=2.5)
         res.raise_for_status()
         with open('tmp.xlsx', 'wb') as f:
             f.write(res.content)
@@ -84,7 +84,7 @@ class Wangyi:
                 utils.addWangyiPrefix(code),
                 start_date, 
                 end_date)
-        response = requests.get(url)
+        response = requests.get(url,timeout=2.5)
         response.raise_for_status()
         response.encoding = 'gbk'
         return response.text
@@ -93,7 +93,7 @@ class Wangyi:
     def getIndexData(self,code, end_date):
         url = "http://quotes.money.163.com/service/chddata.html? \
               code=%s&start=19900101&end=%s&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;VOTURNOVER;VATURNOVER" % (code,end_date)
-        response = requests.get(url)
+        response = requests.get(url,timeout=2.5)
         response.raise_for_status()
         response.encoding = 'gbk'
         return response.text
@@ -101,7 +101,7 @@ class Wangyi:
 
     def peekDayData(self,code, _date):
         url = "http://quotes.money.163.com/trade/lsjysj_%s.html#01b07" % code
-        response = requests.get(url)
+        response = requests.get(url,timeout=2.5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.findAll('table')[3]
