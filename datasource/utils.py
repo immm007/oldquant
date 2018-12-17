@@ -62,9 +62,18 @@ class Float:
         else:
             return np.float(*agrs,**kwargs)
 
-class Int:
+
+class NoneZeroFloat:
+        def __new__(cls,*agrs,**kwargs):
+            if agrs[0]=='0.0':
+                return np.nan
+            else:
+                return np.float(*agrs,**kwargs)
+        
+        
+class NoneZeroInt:
     def __new__(cls,*agrs,**kwargs):
-        if agrs[0]=='None':
+        if agrs[0]=='0':
             return np.nan
         else:
             return int(*agrs,**kwargs)    
