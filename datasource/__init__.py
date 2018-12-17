@@ -171,10 +171,16 @@ class Maintainer:
     
     def complementAll(self):
         end_date = date.today()
+        codes1 = self.__sh_exchange.getDelisted()
+        codes2 = self.__sh_exchange.getHalted()
+        codes3 = self.__sz_exchange.getDelisted()
+        codes4 = self.__sz_exchange.getHalted()
         for name in os.listdir(self.__stocks_folder):
             last_date = datetime.strptime(name[0:10], '%Y-%m-%d').date()
+            code = name[11:17]
+            if code in codes1 or code in codes2 or code in codes3 or code in codes4:
+                continue
             if end_date > last_date:
-                code = name[11:17]    
                 start_date = last_date+timedelta(1)
                 content = self.__wy.getDayData(code, end_date.strftime('%Y%m%d'), start_date.strftime('%Y%m%d'))
                 helper = utils.CSVHelper(content)
@@ -280,6 +286,4 @@ class Maintainer:
             df.loc[data[0]] = row
 
 if __name__=='__main__':
-    ma = Maintainer()
-    r = ma.readStock('300183')
-    ma.complementOnline(r)
+    pass
