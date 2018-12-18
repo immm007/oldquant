@@ -84,7 +84,7 @@ class Wangyi:
                 utils.addWangyiPrefix(code),
                 start_date, 
                 end_date)
-        response = requests.get(url,timeout=2.5)
+        response = requests.get(url,timeout=5)
         response.raise_for_status()
         response.encoding = 'gbk'
         return response.text
@@ -134,6 +134,22 @@ class Maintainer:
     @property
     def indexes_folder(self):
         return self.__indexes_folder
+    
+    @property
+    def cyb_predicate(self):
+        return lambda code: code.startswith('3')
+    
+    @property
+    def sh_predicate(self):
+        return lambda code: code.startswith('6')
+    
+    @property
+    def sz_predicate(self):
+        return lambda code: code.startswith('000') or code.startswith('001') or code.startswith('002')
+    
+    @property
+    def zxb_predicate(self):
+        return lambda code: code.startswith('002')
     
     def downloadSingle(self,code,end_date:date=date.today().strftime('%Y%m%d')):
         content = self.__wy.getDayData(code, end_date)
@@ -219,7 +235,7 @@ class Maintainer:
                     ret.append(name)
         return ret
     
-    def readAllStocks(self):
+    def readAllStocks(self,predicate=lambda name:True):
         return [pd.read_csv(self.__stocks_folder + name, encoding='gbk', index_col=0,
                         converters={
                                 '收盘价':utils.NoneZeroFloat,
@@ -234,9 +250,8 @@ class Maintainer:
                                 '成交金额':utils.NoneZeroFloat,
                                 '总市值':utils.NoneZeroFloat,
                                 '流通市值':utils.NoneZeroFloat
-                                }) for name in os.listdir(self.__stocks_folder)]
-
-    
+                                }) for name in os.listdir(self.__stocks_folder) if predicate(name[11:17])]
+        
     def readStock(self,code):
         names = [name for name in os.listdir(self.__stocks_folder)]
         for name in names:
