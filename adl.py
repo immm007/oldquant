@@ -31,6 +31,15 @@ def draw_sz_adl(_date=(date.today()-timedelta(365)).strftime('%Y-%m-%d')):
         sz_adl = calculate(szcz,sz_stocks)
     draw(szcz,sz_adl,_date)
 
+def draw_zxb_adl(_date=(date.today()-timedelta(365)).strftime('%Y-%m-%d')):
+    global zxb_adl
+    try:
+        if zxb_adl is not None:
+            pass
+    except NameError:
+        zxb_adl = calculate(zxbz,zxb_stocks)
+    draw(zxbz,zxb_adl,_date)
+
 def calculate(zs,stocks):
     ret = {'a':[],'d':[],'diff':[]}
     for _date in zs.index:

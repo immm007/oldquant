@@ -145,7 +145,7 @@ class Maintainer:
     
     @property
     def sz_predicate(self):
-        return lambda code: code.startswith('000') or code.startswith('001') or code.startswith('002')
+        return lambda code: code.startswith('000') or code.startswith('001')
     
     @property
     def zxb_predicate(self):
@@ -212,7 +212,7 @@ class Maintainer:
                 
     def downloadIndexes(self):
         indexes = ['0000001','0000016','0000300',
-                   '1399001','1399106','1399006','1399102']
+                   '1399001','1399106','1399005','1399006','1399102']
         dt = datetime.now()
         _date = dt.date()
         if dt <  datetime(_date.year, _date.month, _date.day,15,30,0):
