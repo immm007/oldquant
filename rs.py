@@ -16,7 +16,7 @@ def draw_rs(zs,stock,_date=(date.today()-timedelta(365)).strftime('%Y-%m-%d')):
     plt.show()
 
 
-def sort_by_rs(zs,stocks,s_date,e_date=None):
+def calculate_rs(zs,stocks,s_date,e_date=None):
     if e_date is None:
         zs_zdf = zs['涨跌幅'][s_date:]
     else:
@@ -29,4 +29,22 @@ def sort_by_rs(zs,stocks,s_date,e_date=None):
         ret.append(rs)
     return pd.DataFrame(ret)
     
-            
+
+s_date1 = '2018-01-29'
+e_date1 = '2018-10-18'
+s_date2 = '2018-10-19'
+e_date2 = '2018-12-19'
+
+
+def calculate(zs,stocks):
+    rs1 = calculate_rs(zs,stocks,s_date1,e_date1)
+    rs2 = calculate_rs(zs,stocks,s_date2,e_date2)
+    return pd.DataFrame([rs1[e_date1],rs2[e_date2]]).T
+
+def stats(zs,stocks):
+    df = calculate(zs,stocks)
+    a = df[df[e_date1]>0]
+    b = df[df[e_date1]<0]
+    ret_a = a[a[e_date2]>0]
+    ret_b = b[b[e_date2]>0]
+    return len(ret_a)/len(a),len(ret_b)/len(b)
