@@ -101,7 +101,7 @@ class Wangyi:
 
     def peekDayData(self,code, _date):
         url = "http://quotes.money.163.com/trade/lsjysj_%s.html#01b07" % code
-        response = requests.get(url,timeout=2.5)
+        response = requests.get(url,timeout=5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.findAll('table')[3]

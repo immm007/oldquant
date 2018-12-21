@@ -41,7 +41,7 @@ def draw_zxb_adl(_date=(date.today()-timedelta(365)).strftime('%Y-%m-%d')):
     draw(zxbz,zxb_adl,_date)
 
 def calculate(zs,stocks):
-    ret = {'a':[],'d':[],'diff':[]}
+    ret = []
     for _date in zs.index:
         sum_a = 0
         sum_d = 0
@@ -53,10 +53,8 @@ def calculate(zs,stocks):
                     sum_a += 1
                 elif stock['涨跌额'][_date] < 0:
                     sum_d +=1
-        ret['a'].append(sum_a)
-        ret['d'].append(sum_d)
-        ret['diff'].append(sum_a-sum_d)
-    return pd.DataFrame(ret,index=zs.index)
+        ret.append(sum_a-sum_d)
+    return pd.Series(ret,index=zs.index).cumsum()
 
 def draw(zs,adl,_date):
     diff = adl['diff'].cumsum()
@@ -65,3 +63,14 @@ def draw(zs,adl,_date):
     plt.subplot(2,1,2)
     plt.plot(diff[_date:])
     plt.show()
+
+def export():
+    s1 = calculate(szzs,sh_stocks)
+    s1.name = 'szzs'
+    s2 = calculate(szcz,sz_stocks)
+    s2.name = 'szcz'
+    s3 = calculate(zxbz,zxb_stocks)
+    s3.name = 'zxbz'
+    s4 = calculate(cybz,cyb_stocks)
+    s4.name = 'cybz'
+    return pd.DataFrame([s1,s2,s3,s4]).T
