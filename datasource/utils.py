@@ -76,5 +76,5 @@ class NoneZeroInt:
         if args[0]=='0':
             return np.nan
         else:
-            return int(*args,**kwargs)    
+            return int(*args,**kwargs)
         

@@ -241,6 +241,7 @@ class Maintainer:
     def readAllStocks(self,predicate=lambda name:True):
         return [pd.read_csv(self.__stocks_folder + name, encoding='gbk', index_col=0,
                         converters={
+                                '日期':lambda s_date:datetime.strptime(s_date,'%Y-%m-%d'),
                                 '收盘价':utils.NoneZeroFloat,
                                 '最高价':utils.NoneZeroFloat,
                                 '最低价':utils.NoneZeroFloat,
@@ -261,6 +262,7 @@ class Maintainer:
             if code in name:
                 return pd.read_csv(self.__stocks_folder+name,encoding='gbk',index_col=0,
                         converters={
+                                '日期':lambda s_date:datetime.strptime(s_date,'%Y-%m-%d'),
                                 '收盘价':utils.NoneZeroFloat,
                                 '最高价':utils.NoneZeroFloat,
                                 '最低价':utils.NoneZeroFloat,
@@ -279,6 +281,7 @@ class Maintainer:
     def readIndex(self,code):
         return pd.read_csv(self.__indexes_folder+code+'.csv',encoding='gbk',index_col=0,
                        converters={
+                                '日期':lambda s_date:datetime.strptime(s_date,'%Y-%m-%d'),
                                 '收盘价':utils.NoneZeroFloat,
                                 '最高价':utils.NoneZeroFloat,
                                 '最低价':utils.NoneZeroFloat,
@@ -303,42 +306,6 @@ class Maintainer:
                    '涨跌幅':np.float(data[6]),'成交量':int(data[7])*100,'成交金额':np.float(data[8])*10000,'换手率':np.float(data[10]),
                    '前收盘':r['收盘价'],'总市值':shares1*np.float(data[4]),'流通市值':shares2*np.float(data[4])}
             df.loc[data[0]] = row
-
-class Resample:
-    class WeekRange:
-        def __init__(self,_date: date):
-            self.__calendar = _date.isocalendar()
-        
-        def contains(self,_date:date):
-            calendar = _date.isocalendar()
-            return calendar[0]==self.__calendar[0] and calendar[1]==self.__calendar[1]
             
-    @classmethod
-    def resampleWeek(cls,df):
-        week_range = None
-        ret = {}
-        for _date in df.index:
-            if week_range is None:
-                week_range = cls.WeekRange(datetime.strptime(_date,'%Y-%m-%d').date())
-                tmp_series = df.loc[_date]
-            else:
-                if week_range.contains(datetime.strptime(_date,'%Y-%m-%d').date()):
-                    series = df.loc[_date]
-                    tmp_series['涨跌额'] = series['收盘价'] - tmp_series['收盘价']
-                    tmp_series['涨跌幅'] = tmp_series['涨跌额'] / tmp_series['收盘价']
-                    tmp_series['收盘价'] = series['收盘价']
-                    tmp_series['最高价'] = max(series['最高价'],tmp_series['最高价'])
-                    tmp_series['最低价'] = max(series['最低价'],tmp_series['最低价'])
-                    tmp_series['成交量'] += series['成交量']
-                    tmp_series['成交金额'] += series['成交金额']
-                    last_date = _date
-                else:
-                    ret[last_date] = tmp_series
-                    tmp_series = df.loc[_date]
-                    week_range = cls.WeekRange(datetime.strptime(_date,'%Y-%m-%d').date())
-        return ret
-                    
 if __name__=='__main__':
-    ma = Maintainer()
-    df = ma.readIndex('399006')
-    r = Resample.resampleWeek(df)
+    pass
