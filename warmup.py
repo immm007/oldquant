@@ -14,5 +14,5 @@ cybz = ma.readIndex('399006')
 zxbz = ma.readIndex('399005')
 
 
-for stock in cyb_stocks:
-    ma.complementOnline(stock)
+#for stock in cyb_stocks:
+    #ma.complementOnline(stock)

@@ -73,4 +73,6 @@ def export():
     s3.name = 'zxbz'
     s4 = calculate(cybz,cyb_stocks)
     s4.name = 'cybz'
-    return pd.DataFrame([s1,s2,s3,s4]).T
+    df = pd.DataFrame([s1,s2,s3,s4]).T
+    df.to_csv('adl.csv',index_label='date',na_rep='0.5')
+    

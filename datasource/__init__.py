@@ -3,7 +3,7 @@ from datasource import utils
 import xlrd
 import os
 from bs4 import BeautifulSoup
-from datetime import date,datetime,timedelta
+from datetime import date, datetime, timedelta
 import pandas as pd
 import numpy as np
 
@@ -84,7 +84,8 @@ class Wangyi:
                 utils.addWangyiPrefix(code),
                 start_date, 
                 end_date)
-        response = requests.get(url,timeout=5)
+        headers = {'Connection': 'close' }
+        response = requests.get(url,timeout=5,headers=headers)
         response.raise_for_status()
         response.encoding = 'gbk'
         return response.text
@@ -101,7 +102,7 @@ class Wangyi:
 
     def peekDayData(self,code, _date):
         url = "http://quotes.money.163.com/trade/lsjysj_%s.html#01b07" % code
-        response = requests.get(url,timeout=5)
+        response = requests.get(url,timeout=2.5)
         response.raise_for_status()
         soup = BeautifulSoup(response.text, 'html.parser')
         table = soup.findAll('table')[3]
@@ -187,6 +188,8 @@ class Maintainer:
     
     def complementAll(self):
         end_date = date.today()
+        if end_date.weekday()==0:
+            end_date = end_date-timedelta(3)
         codes1 = self.__sh_exchange.getDelisted()
         codes2 = self.__sh_exchange.getHalted()
         codes3 = self.__sz_exchange.getDelisted()
@@ -286,7 +289,8 @@ class Maintainer:
                                 '成交量':utils.NoneZeroInt,
                                 '成交金额':utils.NoneZeroFloat
                                })
-            
+    
+    
     def complementOnline(self,df):
         r = df.iloc[len(df)-1]
         code = r['股票代码']
@@ -300,5 +304,41 @@ class Maintainer:
                    '前收盘':r['收盘价'],'总市值':shares1*np.float(data[4]),'流通市值':shares2*np.float(data[4])}
             df.loc[data[0]] = row
 
+class Resample:
+    class WeekRange:
+        def __init__(self,_date: date):
+            self.__calendar = _date.isocalendar()
+        
+        def contains(self,_date:date):
+            calendar = _date.isocalendar()
+            return calendar[0]==self.__calendar[0] and calendar[1]==self.__calendar[1]
+            
+    @classmethod
+    def resampleWeek(cls,df):
+        week_range = None
+        ret = {}
+        for _date in df.index:
+            if week_range is None:
+                week_range = cls.WeekRange(datetime.strptime(_date,'%Y-%m-%d').date())
+                tmp_series = df.loc[_date]
+            else:
+                if week_range.contains(datetime.strptime(_date,'%Y-%m-%d').date()):
+                    series = df.loc[_date]
+                    tmp_series['涨跌额'] = series['收盘价'] - tmp_series['收盘价']
+                    tmp_series['涨跌幅'] = tmp_series['涨跌额'] / tmp_series['收盘价']
+                    tmp_series['收盘价'] = series['收盘价']
+                    tmp_series['最高价'] = max(series['最高价'],tmp_series['最高价'])
+                    tmp_series['最低价'] = max(series['最低价'],tmp_series['最低价'])
+                    tmp_series['成交量'] += series['成交量']
+                    tmp_series['成交金额'] += series['成交金额']
+                    last_date = _date
+                else:
+                    ret[last_date] = tmp_series
+                    tmp_series = df.loc[_date]
+                    week_range = cls.WeekRange(datetime.strptime(_date,'%Y-%m-%d').date())
+        return ret
+                    
 if __name__=='__main__':
-    pass
+    ma = Maintainer()
+    df = ma.readIndex('399006')
+    r = Resample.resampleWeek(df)
