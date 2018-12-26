@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import date, datetime, timedelta
 import pandas as pd
 import numpy as np
+import threading
 
 
 class SHExchange:
@@ -79,7 +80,7 @@ class SZExchange:
 
 
 class Wangyi:
-    def getDayData(self, code, end_date, start_date='19900101'):        
+    def getDayData(self, code, end_date, start_date='19900101'):
         url =  "http://quotes.money.163.com/service/chddata.html?code={0}&start={1}&end={2}&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP".format(
                 utils.addWangyiPrefix(code),
                 start_date, 
@@ -210,6 +211,47 @@ class Maintainer:
                     with open(path, 'a') as f:
                         f.writelines(utils.WYRCSVHelper(content,62))
                     os.rename(path, self.__stocks_folder + latest_date + '-' + '%s.csv' % code)
+                except StopIteration:
+                    continue
+    
+    def complementAllMT(self):
+        end_date = date.today()
+        if end_date.weekday()==0:
+            end_date = end_date-timedelta(3)
+        #codes1 = self.__sh_exchange.getDelisted()
+        #codes2 = self.__sh_exchange.getHalted()
+        #codes3 = self.__sz_exchange.getDelisted()
+        #codes4 = self.__sz_exchange.getHalted()
+        names = os.listdir(self.__stocks_folder)
+        t1 = threading.Thread(target=self.complementSome,args=(names[0:900],end_date))
+        t1.start()
+        t2 = threading.Thread(target=self.complementSome,args=(names[900:1800],end_date))
+        t2.start()
+        t3 = threading.Thread(target=self.complementSome,args=(names[1800:2700],end_date))
+        t3.start()
+        t4 = threading.Thread(target=self.complementSome,args=(names[2700:],end_date))
+        t4.start()
+        t1.join()
+        t2.join()
+        t3.join()
+        t4.join()
+        
+            
+    def complementSome(self,names,end_date):
+        for name in names:
+            last_date = datetime.strptime(name[0:10], '%Y-%m-%d').date()
+            if end_date > last_date:
+                code = name[11:17]
+                start_date = last_date+timedelta(1)
+                content = self.__wy.getDayData(code, end_date.strftime('%Y%m%d'), start_date.strftime('%Y%m%d'))
+                helper = utils.CSVHelper(content)
+                next(helper)
+                try:
+                    latest_date = next(helper)[0:10]
+                    path = self.__stocks_folder + name
+                    with open(path, 'a') as f:
+                        f.writelines(utils.WYRCSVHelper(content,62))
+                        os.rename(path, self.__stocks_folder + latest_date + '-' + '%s.csv' % code)
                 except StopIteration:
                     continue
                 

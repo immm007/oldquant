@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from datasource import Maintainer
-import requests
+import timeit
 
-requests.adapters.DEFAULT_RETRIES = 3
 ma = Maintainer()
-ma.downloadIndexes()
-ma.complementAll()
+#ma.downloadIndexes()
+
+def f():
+    ma.complementAllMT()
+    
+print(timeit.timeit('f()','from __main__ import f',number=1))
